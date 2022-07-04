@@ -13,82 +13,48 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import static java.util.stream.Collectors.toList;
+import org.springframework.stereotype.Service;
 
 import entity.LearningResource;
 import entity.LearningResourceStatus;
+import repository.LearningResourceRepository;
 
+@Service
 public class LearningResourceService {
-	private List<LearningResource> getLearningResources() throws Exception {
-		List<LearningResource> l=new ArrayList<>();
-		String line="";
-		BufferedReader br=new BufferedReader(new FileReader("LearningResource.csv"));
-		while((line=br.readLine())!=null)
-		{
-			String[] res=line.split(",");
-			LearningResource learn=createLearningResource(res);
-			l.add(learn);
-		}
-		return l;
-	}
-	private void saveLearningResources(List<LearningResource> learningResources){
-        final String csvDelimiter = ",";
-        try {
-            File learningResourcesFile = new File("LearningResources.csv");
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(learningResourcesFile.getName(), true));
-            for (LearningResource learningResource : learningResources) {
-                bufferedWriter.newLine();
-                StringBuffer singleLine = new StringBuffer();
-                singleLine.append(learningResource.getId());
-                singleLine.append(csvDelimiter);
-                singleLine.append(learningResource.getName());
-                singleLine.append(csvDelimiter);
-                singleLine.append(learningResource.getCp());
-                singleLine.append(csvDelimiter);
-                singleLine.append(learningResource.getSp());
-                singleLine.append(csvDelimiter);
-                singleLine.append(learningResource.getLrStat());
-                singleLine.append(csvDelimiter);
-                singleLine.append(learningResource.getCreated());
-                singleLine.append(csvDelimiter);
-                singleLine.append(learningResource.getPublished());
-                singleLine.append(csvDelimiter);
-                singleLine.append(learningResource.getRetired());
-                bufferedWriter.write(singleLine.toString());
-            }
-            bufferedWriter.flush();
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+	private final LearningResourceRepository learningResourceRepository;
+
+    public LearningResourceService(LearningResourceRepository learningResourceRepository) {
+        this.learningResourceRepository = learningResourceRepository;
     }
-	private LearningResource createLearningResource(String[] attributes) throws Exception{
-        Integer id=Integer.parseInt(attributes[0]);
-        String name=attributes[1];
-        Integer cp=Integer.parseInt(attributes[2]);
-        Integer sp=Integer.parseInt(attributes[3]);
-        LearningResourceStatus learningResourceStatus = LearningResourceStatus.valueOf(attributes[4]);
-        Date cr= new SimpleDateFormat("dd/MM/yyyy").parse(attributes[5]);
-        Date pub=new SimpleDateFormat("dd/MM/yyyy").parse(attributes[6]);
-        Date ret=new SimpleDateFormat("dd/MM/yyyy").parse(attributes[7]);
-        LearningResource learningResource=new LearningResource(id, name, cp, sp, learningResourceStatus, cr, pub, ret);
-        return learningResource;
+
+    public void saveLearningResources(List<LearningResource> learningResources){
+        for (LearningResource learningResource : learningResources)
+            learningResourceRepository.save(learningResource);
     }
-	private List<LearningResource> sortByProfits() throws Exception
-	{
-		List<LearningResource> lr= getLearningResources();
-		Profitsorter ps=new Profitsorter();
-		Collections.sort(lr,new Profitsorter());
-		return lr;
-	}
-}
-class Profitsorter implements Comparator
-{
-	public int compare(Object o1,Object o2)
-	{
-		LearningResource lrs1=(LearningResource)o1;
-		LearningResource lrs2=(LearningResource)o2;
-		int profit2=lrs2.getSp()-lrs2.getCp();
-		int profit1=lrs1.getSp()-lrs1.getCp();
-		return profit2-profit1;
-	}
+
+    public List<LearningResource> getLearningResources(){
+        return learningResourceRepository.findAll();
+    }
+
+    public List<Integer> getProfitMargin(){
+        List<LearningResource> learningResources = getLearningResources();
+
+        List<Integer> profitMargins = learningResources.stream().map(lr -> ((lr.getSp() - lr.getCp())/lr.getSp())).collect(toList());
+
+        return profitMargins;
+    }
+
+    public List<LearningResource> sortLearningResourcesByProfitMargin(){
+        List<LearningResource> learningResources = getLearningResources();
+
+        learningResources.sort((lr1, lr2) -> {
+            Integer profitMargin1 = (lr1.getSp() - lr1.getCp())/lr1.getSp();
+            Integer profitMargin2 = (lr2.getSp() - lr2.getCp())/lr2.getSp();
+
+            return profitMargin2.compareTo(profitMargin1) ;
+        });
+
+        return learningResources;
+    }
 }
