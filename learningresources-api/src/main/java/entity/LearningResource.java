@@ -3,6 +3,8 @@ package entity;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 
 
@@ -13,6 +15,8 @@ public class LearningResource {
 	private String name;
 	private Integer cp;
 	private Integer sp;
+   
+	@Enumerated(EnumType.STRING)
 	private LearningResourceStatus lrStat;
 	private Date created;
 	private Date published;
