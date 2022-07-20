@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -85,9 +86,9 @@ public class LearningResourcesServiceTests {
     @Test
     public void saveTheLearningResources(){
         List<LearningResource> learningResources = new ArrayList<>();
-        LearningResource learningResource1 = new LearningResource(1311, "Test Name 1", 100.0, 120.0, LearningResourceStatus.LIVE, LocalDate.now(), LocalDate.now().plusMonths(5), LocalDate.now().plusYears(2));
-        LearningResource learningResource2 = new LearningResource(1312, "Test Name 2", 120.0, 180.0, LearningResourceStatus.LIVE, LocalDate.now(), LocalDate.now().plusMonths(6), LocalDate.now().plusYears(3));
-        LearningResource learningResource3 = new LearningResource(1313, "Test Name 3", 120.0, 180.0, LearningResourceStatus.LIVE, LocalDate.now(), LocalDate.now().plusMonths(6), LocalDate.now().plusYears(3));
+        LearningResource learningResource1 = new LearningResource(1311, "Test Name 1", 100, 120, LearningResourceStatus.LIVE, new Date(), new Date(), new Date());
+        LearningResource learningResource2 = new LearningResource(1312, "Test Name 2", 120, 180, LearningResourceStatus.LIVE, new Date(), new Date(), new Date());
+        LearningResource learningResource3 = new LearningResource(1313, "Test Name 3", 120, 180, LearningResourceStatus.LIVE, new Date(), new Date(), new Date());
         learningResources.add(learningResource1);
         learningResources.add(learningResource2);
         learningResources.add(learningResource3);
